@@ -131,10 +131,14 @@ export default function NewPostPage() {
             <button
               type="submit"
               disabled={loading}
-              className="px-4 sm:px-6 py-2 bg-primary rounded-md sm:rounded-lg hover:bg-blue-600 active:bg-blue-700 disabled:opacity-50 transition-colors font-medium text-sm sm:text-base touch-manipulation"
-              style={{ color: 'var(--color-black)' }}
+              className="px-4 sm:px-6 py-2 bg-primary text-white rounded-md sm:rounded-lg hover:bg-blue-600 active:bg-blue-700 disabled:opacity-50 transition-colors font-medium text-sm sm:text-base touch-manipulation relative"
             >
-              {loading ? '작성 중...' : '작성하기'}
+              {loading && (
+                <span className="absolute inset-0 flex items-center justify-center">
+                  <div className="size-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                </span>
+              )}
+              <span className={loading ? 'opacity-0' : ''}>작성하기</span>
             </button>
           </div>
         </form>

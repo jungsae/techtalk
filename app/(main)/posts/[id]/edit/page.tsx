@@ -153,9 +153,14 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
             <button
               type="submit"
               disabled={loading}
-              className="px-6 py-2 bg-primary text-white rounded-lg hover:bg-blue-600 disabled:opacity-50 transition-colors font-medium"
+              className="px-6 py-2 bg-primary text-white rounded-lg hover:bg-blue-600 disabled:opacity-50 transition-colors font-medium relative"
             >
-              {loading ? '수정 중...' : '수정하기'}
+              {loading && (
+                <span className="absolute inset-0 flex items-center justify-center">
+                  <div className="size-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                </span>
+              )}
+              <span className={loading ? 'opacity-0' : ''}>수정하기</span>
             </button>
           </div>
         </form>

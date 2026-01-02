@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
 import { CommentSection } from '@/components/comments/CommentSection'
+import { MarkdownRenderer } from './MarkdownRenderer'
 
 interface Post {
   id: string
@@ -14,6 +15,7 @@ interface Post {
   created_at: string
   updated_at: string
   view_count: number
+  comment_count?: number
   user_profiles: {
     id: string
     username: string | null
@@ -178,21 +180,17 @@ export function PostDetailModal({ post }: PostDetailModalProps) {
                 </h1>
                 
                 <div className="text-sm sm:text-base leading-relaxed text-black space-y-4 mt-2">
-                  <div className="whitespace-pre-wrap break-words">{post.content}</div>
+                  <MarkdownRenderer content={post.content} />
                 </div>
               </article>
 
               {/* 액션 버튼들 */}
               <div className="flex items-center justify-between py-4 sm:py-6 mt-4 sm:mt-6 border-b border-[#e5e7eb] gap-2">
                 <div className="flex items-center gap-4 sm:gap-6 flex-1">
-                  <button className="flex items-center gap-1.5 sm:gap-2 text-gray-600 hover:text-primary active:text-primary/80 transition-colors group touch-manipulation">
-                    <span className="material-symbols-outlined group-hover:fill-current text-[20px] sm:text-[24px]">favorite</span>
-                    <span className="text-xs sm:text-sm font-medium">0</span>
-                  </button>
-                  <button className="flex items-center gap-1.5 sm:gap-2 text-gray-600 hover:text-black active:opacity-70 transition-colors touch-manipulation">
+                  <div className="flex items-center gap-1.5 sm:gap-2 text-gray-600 touch-manipulation">
                     <span className="material-symbols-outlined text-[20px] sm:text-[24px]">chat_bubble</span>
-                    <span className="text-xs sm:text-sm font-medium">0</span>
-                  </button>
+                    <span className="text-xs sm:text-sm font-medium">{post.comment_count || 0}</span>
+                  </div>
                   <button className="flex items-center gap-1.5 sm:gap-2 text-gray-600 hover:text-black active:opacity-70 transition-colors touch-manipulation">
                     <span className="material-symbols-outlined text-[20px] sm:text-[24px]">share</span>
                   </button>
@@ -213,13 +211,18 @@ export function PostDetailModal({ post }: PostDetailModalProps) {
                   >
                     수정
                   </Link>
-                  <button
-                    onClick={handleDelete}
-                    disabled={deleteLoading}
-                    className="px-4 sm:px-6 py-2 bg-red-600 text-white rounded-md sm:rounded-lg hover:bg-red-700 active:bg-red-800 disabled:opacity-50 transition-colors font-medium text-sm sm:text-base touch-manipulation"
-                  >
-                    {deleteLoading ? '삭제 중...' : '삭제'}
-                  </button>
+                         <button
+                           onClick={handleDelete}
+                           disabled={deleteLoading}
+                           className="px-4 sm:px-6 py-2 bg-red-600 text-white rounded-md sm:rounded-lg hover:bg-red-700 active:bg-red-800 disabled:opacity-50 transition-colors font-medium text-sm sm:text-base touch-manipulation relative"
+                         >
+                           {deleteLoading && (
+                             <span className="absolute inset-0 flex items-center justify-center">
+                               <div className="size-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                             </span>
+                           )}
+                           <span className={deleteLoading ? 'opacity-0' : ''}>삭제</span>
+                         </button>
                 </div>
               )}
 

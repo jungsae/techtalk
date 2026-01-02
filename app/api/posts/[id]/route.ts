@@ -28,21 +28,26 @@ export async function GET(
       return NextResponse.json({ error: 'Post not found' }, { status: 404 })
     }
 
-    // Fetch user profile and Redis view count separately
+    // Fetch user profile, Redis view count, and comment count separately
     // Note: We can't use user_profiles:author_id relationship because 
     // posts.author_id references auth.users, not user_profiles directly
-    const [userProfileResult, redisViewCount] = await Promise.all([
+    const [userProfileResult, redisViewCount, commentCountResult] = await Promise.all([
       supabase
         .from('user_profiles')
         .select('id, username, avatar_url')
         .eq('id', post.author_id)
         .single(),
       redis.get<number>(`post:views:${postId}`),
+      supabase
+        .from('comments')
+        .select('id', { count: 'exact', head: true })
+        .eq('post_id', postId),
     ])
     
     return NextResponse.json({
       ...post,
       view_count: Math.max(post.view_count || 0, Number(redisViewCount || 0)),
+      comment_count: commentCountResult.count || 0,
       user_profiles: userProfileResult.data,
     })
   } catch (error: any) {

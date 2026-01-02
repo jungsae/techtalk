@@ -135,34 +135,52 @@ export async function sendCommentNotification(
 ) {
   // Don't send notification if the comment author is the post author
   if (commentAuthorId === postAuthorId) {
+    console.log('Skipping comment notification: comment author is post author')
     return { success: false, message: 'Comment author is post author' }
   }
 
-  const supabase = createAdminClient()
+  try {
+    const supabase = createAdminClient()
 
-  // Get post details
-  const { data: post } = await supabase
-    .from('posts')
-    .select('title')
-    .eq('id', postId)
-    .single()
+    // Get post details
+    const { data: post, error: postError } = await supabase
+      .from('posts')
+      .select('title')
+      .eq('id', postId)
+      .single()
 
-  // Get comment author details
-  const { data: commentAuthor } = await supabase
-    .from('user_profiles')
-    .select('username')
-    .eq('id', commentAuthorId)
-    .single()
+    if (postError) {
+      console.error('Error fetching post for comment notification:', postError)
+    }
 
-  return sendNotificationToUser(postAuthorId, {
-    title: '새 댓글이 달렸습니다',
-    body: `${commentAuthor?.username || '익명'}님이 "${post?.title || '게시글'}"에 댓글을 남겼습니다.`,
-    data: {
-      type: 'comment',
-      postId,
-      commentId,
-    },
-  })
+    // Get comment author details
+    const { data: commentAuthor, error: authorError } = await supabase
+      .from('user_profiles')
+      .select('username')
+      .eq('id', commentAuthorId)
+      .single()
+
+    if (authorError) {
+      console.error('Error fetching comment author for notification:', authorError)
+    }
+
+    console.log(`Sending comment notification to user ${postAuthorId}`)
+    const result = await sendNotificationToUser(postAuthorId, {
+      title: '새 댓글이 달렸습니다',
+      body: `${commentAuthor?.username || '익명'}님이 "${post?.title || '게시글'}"에 댓글을 남겼습니다.`,
+      data: {
+        type: 'comment',
+        postId,
+        commentId,
+      },
+    })
+    
+    console.log('Comment notification sent:', result)
+    return result
+  } catch (error) {
+    console.error('Error in sendCommentNotification:', error)
+    return { success: false, error: error instanceof Error ? error.message : 'Unknown error' }
+  }
 }
 
 export async function sendReplyNotification(
@@ -173,34 +191,52 @@ export async function sendReplyNotification(
 ) {
   // Don't send notification if the reply author is the parent comment author
   if (replyAuthorId === parentCommentAuthorId) {
+    console.log('Skipping reply notification: reply author is parent comment author')
     return { success: false, message: 'Reply author is parent comment author' }
   }
 
-  const supabase = createAdminClient()
+  try {
+    const supabase = createAdminClient()
 
-  // Get post details
-  const { data: post } = await supabase
-    .from('posts')
-    .select('title')
-    .eq('id', postId)
-    .single()
+    // Get post details
+    const { data: post, error: postError } = await supabase
+      .from('posts')
+      .select('title')
+      .eq('id', postId)
+      .single()
 
-  // Get reply author details
-  const { data: replyAuthor } = await supabase
-    .from('user_profiles')
-    .select('username')
-    .eq('id', replyAuthorId)
-    .single()
+    if (postError) {
+      console.error('Error fetching post for reply notification:', postError)
+    }
 
-  return sendNotificationToUser(parentCommentAuthorId, {
-    title: '새 대댓글이 달렸습니다',
-    body: `${replyAuthor?.username || '익명'}님이 "${post?.title || '게시글'}"의 댓글에 답글을 남겼습니다.`,
-    data: {
-      type: 'reply',
-      postId,
-      commentId,
-    },
-  })
+    // Get reply author details
+    const { data: replyAuthor, error: authorError } = await supabase
+      .from('user_profiles')
+      .select('username')
+      .eq('id', replyAuthorId)
+      .single()
+
+    if (authorError) {
+      console.error('Error fetching reply author for notification:', authorError)
+    }
+
+    console.log(`Sending reply notification to user ${parentCommentAuthorId}`)
+    const result = await sendNotificationToUser(parentCommentAuthorId, {
+      title: '새 대댓글이 달렸습니다',
+      body: `${replyAuthor?.username || '익명'}님이 "${post?.title || '게시글'}"의 댓글에 답글을 남겼습니다.`,
+      data: {
+        type: 'reply',
+        postId,
+        commentId,
+      },
+    })
+    
+    console.log('Reply notification sent:', result)
+    return result
+  } catch (error) {
+    console.error('Error in sendReplyNotification:', error)
+    return { success: false, error: error instanceof Error ? error.message : 'Unknown error' }
+  }
 }
 
 export async function sendNewPostNotification(userIds: string[], postId: string, postTitle: string) {

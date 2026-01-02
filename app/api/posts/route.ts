@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
+import { redis } from '@/lib/redis/client'
 
 export async function GET(request: Request) {
   try {
@@ -26,25 +27,31 @@ export async function GET(request: Request) {
 
     if (error) throw error
 
-    // Fetch user profiles separately for each post
+    // Fetch user profiles, Redis view counts, and comment counts separately for each post
     // Note: We can't use user_profiles:author_id relationship because 
     // posts.author_id references auth.users, not user_profiles directly
-    // Redis 조회수는 실시간 증가만 담당하고, 목록에서는 Supabase view_count 사용 (크론이 6시간마다 동기화)
-    // 이렇게 하면 게시글 목록 조회 시 Redis 명령어를 0으로 줄일 수 있음
+    // Redis 조회수를 가져와서 실시간 조회수 표시 (인기글과 동기화)
     const postsWithViewCounts = await Promise.all(
       (posts || []).map(async (post) => {
-        const { data: userProfile } = await supabase
-          .from('user_profiles')
-          .select('id, username, avatar_url')
-          .eq('id', post.author_id)
-          .single()
+        const [userProfileResult, redisViewCount, commentCountResult] = await Promise.all([
+          supabase
+            .from('user_profiles')
+            .select('id, username, avatar_url')
+            .eq('id', post.author_id)
+            .single(),
+          redis.get<number>(`post:views:${post.id}`),
+          supabase
+            .from('comments')
+            .select('id', { count: 'exact', head: true })
+            .eq('post_id', post.id),
+        ])
 
         return {
           ...post,
-          // Supabase의 view_count 사용 (크론이 6시간마다 Redis에서 동기화)
-          // 실시간 조회수는 상세 페이지에서만 확인 가능
-          view_count: post.view_count || 0,
-          user_profiles: userProfile,
+          // Redis 조회수를 우선 사용하고, 없으면 Supabase view_count 사용 (인기글과 동기화)
+          view_count: Math.max(post.view_count || 0, Number(redisViewCount || 0)),
+          comment_count: commentCountResult.count || 0,
+          user_profiles: userProfileResult.data,
         }
       })
     )

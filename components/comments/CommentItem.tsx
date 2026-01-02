@@ -22,6 +22,7 @@ interface CommentItemProps {
   comment: Comment
   replies: Comment[]
   repliesMap: Map<string, Comment[]>
+  onCommentAdded: (comment: Comment) => void
   onCommentUpdated: (comment: Comment) => void
   onCommentDeleted: (commentId: string) => void
   currentUserId?: string
@@ -31,6 +32,7 @@ export function CommentItem({
   comment,
   replies,
   repliesMap,
+  onCommentAdded,
   onCommentUpdated,
   onCommentDeleted,
   currentUserId,
@@ -88,7 +90,7 @@ export function CommentItem({
   }
 
   const handleReplyAdded = (newReply: Comment) => {
-    onCommentUpdated(newReply)
+    onCommentAdded(newReply) // 새로운 댓글 추가
     setIsReplying(false)
   }
 
@@ -168,9 +170,14 @@ export function CommentItem({
                 type="button"
                 onClick={handleUpdate}
                 disabled={loading}
-                className="px-3 py-1.5 bg-primary text-white rounded-lg hover:bg-blue-600 active:bg-blue-700 text-xs sm:text-sm disabled:opacity-50 transition-colors touch-manipulation"
+                className="px-3 py-1.5 bg-primary text-white rounded-lg hover:bg-blue-600 active:bg-blue-700 text-xs sm:text-sm disabled:opacity-50 transition-colors touch-manipulation relative"
               >
-                {loading ? '수정 중...' : '저장'}
+                {loading && (
+                  <span className="absolute inset-0 flex items-center justify-center">
+                    <div className="size-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  </span>
+                )}
+                <span className={loading ? 'opacity-0' : ''}>저장</span>
               </button>
             </div>
           </div>
@@ -210,6 +217,7 @@ export function CommentItem({
               comment={reply}
               replies={repliesMap.get(reply.id) || []}
               repliesMap={repliesMap}
+              onCommentAdded={onCommentAdded}
               onCommentUpdated={onCommentUpdated}
               onCommentDeleted={onCommentDeleted}
               currentUserId={currentUserId}

@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { PostActions } from '@/components/posts/PostActions'
 import { CommentSection } from '@/components/comments/CommentSection'
 import { PostHeader } from '@/components/posts/PostHeader'
+import { MarkdownRenderer } from '@/components/posts/MarkdownRenderer'
 
 async function getPost(id: string) {
   const supabase = await createClient()
@@ -118,7 +119,7 @@ export default async function PostDetailPage({
               <PostActions post={post} />
             </div>
             <div className="text-base leading-relaxed text-black space-y-4 mt-2">
-              <div className="whitespace-pre-wrap text-black">{post.content}</div>
+              <MarkdownRenderer content={post.content} />
             </div>
           </article>
           <CommentSection postId={id} />

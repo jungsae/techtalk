@@ -117,9 +117,14 @@ export function CommentForm({
             <button
               type="submit"
               disabled={loading}
-              className="px-3 sm:px-4 py-1.5 sm:py-2 bg-primary text-white rounded-lg hover:bg-blue-600 active:bg-blue-700 disabled:opacity-50 text-xs sm:text-sm font-medium transition-colors touch-manipulation"
+              className="px-3 sm:px-4 py-1.5 sm:py-2 bg-primary text-white rounded-lg hover:bg-blue-600 active:bg-blue-700 disabled:opacity-50 text-xs sm:text-sm font-medium transition-colors touch-manipulation relative"
             >
-              {loading ? '작성 중...' : '작성'}
+              {loading && (
+                <span className="absolute inset-0 flex items-center justify-center">
+                  <div className="size-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                </span>
+              )}
+              <span className={loading ? 'opacity-0' : ''}>작성</span>
             </button>
           </div>
         </div>

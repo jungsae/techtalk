@@ -158,21 +158,35 @@ export async function POST(
         .single()
 
       if (parentComment) {
+        console.log(`Sending reply notification: replyAuthor=${user.id}, parentAuthor=${parentComment.author_id}`)
         sendReplyNotification(
           postId,
           comment.id,
           user.id,
           parentComment.author_id
-        ).catch(console.error)
+        )
+          .then((result) => {
+            console.log('Reply notification result:', result)
+          })
+          .catch((error) => {
+            console.error('Failed to send reply notification:', error)
+          })
       }
     } else {
       // Send notification to post author
+      console.log(`Sending comment notification: commentAuthor=${user.id}, postAuthor=${post.author_id}`)
       sendCommentNotification(
         postId,
         comment.id,
         user.id,
         post.author_id
-      ).catch(console.error)
+      )
+        .then((result) => {
+          console.log('Comment notification result:', result)
+        })
+        .catch((error) => {
+          console.error('Failed to send comment notification:', error)
+        })
     }
 
     return NextResponse.json(commentWithProfile, { status: 201 })

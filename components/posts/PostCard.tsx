@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import { MarkdownRenderer } from './MarkdownRenderer'
 
 interface PostCardProps {
   post: {
@@ -11,6 +12,7 @@ interface PostCardProps {
     content: string
     created_at: string
     view_count: number
+    comment_count?: number
     user_profiles?: {
       username?: string | null
       avatar_url?: string | null
@@ -76,14 +78,19 @@ export function PostCard({ post, variant = 'default' }: PostCardProps) {
               🔥 인기
             </span>
           </div>
-          <div className="text-black mb-4 sm:mb-5 md:mb-6 line-clamp-3 sm:line-clamp-4 md:line-clamp-5 text-sm sm:text-base leading-relaxed flex-1">
-            {post.content}
+          <div className="text-black mb-4 sm:mb-5 md:mb-6 text-sm sm:text-base leading-relaxed flex-1 overflow-hidden">
+            <div className="line-clamp-3 sm:line-clamp-4 md:line-clamp-5 markdown-preview">
+              <MarkdownRenderer content={post.content} />
+            </div>
           </div>
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0 text-xs sm:text-sm text-gray-600 mt-auto">
             <div className="flex items-center gap-2 sm:gap-4">
               <span className="text-gray-900 font-medium">{post.user_profiles?.username || '익명'}</span>
               <span>{formatTimeAgo(post.created_at)}</span>
             </div>
+            {user && (
+              <span className="text-gray-600">조회수 {post.view_count || 0}</span>
+            )}
           </div>
         </div>
       </article>
@@ -129,28 +136,26 @@ export function PostCard({ post, variant = 'default' }: PostCardProps) {
           <h2 className="text-base sm:text-lg font-bold leading-tight line-clamp-2" style={{ color: 'var(--color-black)' }}>
             {post.title}
           </h2>
-          <div className="text-sm leading-relaxed line-clamp-3" style={{ color: 'var(--color-black)' }}>
-            {post.content}
+          <div className="text-sm leading-relaxed overflow-hidden" style={{ color: 'var(--color-black)' }}>
+            <div className="line-clamp-3 markdown-preview">
+              <MarkdownRenderer content={post.content} />
+            </div>
           </div>
         </div>
       </div>
       <div className="px-4 sm:px-5 py-2.5 sm:py-3 border-t border-[#e5e7eb] flex items-center justify-between">
         <div className="flex items-center gap-4 sm:gap-6">
           <div 
-            className="flex items-center gap-1.5 sm:gap-2 text-gray-600 transition-colors group touch-manipulation"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <span className="material-symbols-outlined text-[20px] sm:text-[22px]">favorite</span>
-            <span className="text-xs sm:text-sm font-medium">0</span>
-          </div>
-          <div 
             className="flex items-center gap-1.5 sm:gap-2 text-gray-600 transition-colors touch-manipulation"
             onClick={(e) => e.stopPropagation()}
           >
             <span className="material-symbols-outlined text-[20px] sm:text-[22px]">chat_bubble</span>
-            <span className="text-xs sm:text-sm font-medium">0</span>
+            <span className="text-xs sm:text-sm font-medium">{post.comment_count || 0}</span>
           </div>
         </div>
+        {user && (
+          <span className="text-xs text-gray-500">조회수 {post.view_count || 0}</span>
+        )}
       </div>
     </article>
   )

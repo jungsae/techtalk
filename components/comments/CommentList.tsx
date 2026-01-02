@@ -20,6 +20,7 @@ interface Comment {
 interface CommentListProps {
   comments: Comment[]
   repliesMap: Map<string, Comment[]>
+  onCommentAdded: (comment: Comment) => void
   onCommentUpdated: (comment: Comment) => void
   onCommentDeleted: (commentId: string) => void
   currentUserId?: string
@@ -28,6 +29,7 @@ interface CommentListProps {
 export function CommentList({
   comments,
   repliesMap,
+  onCommentAdded,
   onCommentUpdated,
   onCommentDeleted,
   currentUserId,
@@ -40,6 +42,7 @@ export function CommentList({
           comment={comment}
           replies={repliesMap.get(comment.id) || []}
           repliesMap={repliesMap}
+          onCommentAdded={onCommentAdded}
           onCommentUpdated={onCommentUpdated}
           onCommentDeleted={onCommentDeleted}
           currentUserId={currentUserId}

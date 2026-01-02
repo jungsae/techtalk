@@ -97,3 +97,59 @@ body {
     opacity: 1;
   }
 }
+
+/* Markdown preview in PostCard - line clamp support */
+.markdown-preview {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.markdown-preview * {
+  display: inline;
+  margin: 0;
+  padding: 0;
+}
+
+.markdown-preview p {
+  display: block;
+}
+
+.markdown-preview p:not(:last-child) {
+  margin-bottom: 0.5rem;
+}
+
+.markdown-preview h1,
+.markdown-preview h2,
+.markdown-preview h3,
+.markdown-preview h4,
+.markdown-preview h5,
+.markdown-preview h6 {
+  display: block;
+  font-weight: bold;
+  margin: 0;
+}
+
+.markdown-preview code {
+  background-color: rgba(0, 0, 0, 0.05);
+  padding: 0.125rem 0.25rem;
+  border-radius: 0.25rem;
+  font-size: 0.875em;
+}
+
+.markdown-preview pre {
+  display: block;
+  margin: 0;
+  padding: 0;
+}
+
+.markdown-preview ul,
+.markdown-preview ol {
+  display: block;
+  margin: 0;
+  padding-left: 1.25rem;
+}
+
+.markdown-preview li {
+  display: list-item;
+}

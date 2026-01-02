@@ -5,6 +5,7 @@ import { CommentList } from './CommentList'
 import { CommentForm } from './CommentForm'
 import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
+import { LoadingSpinner } from '../ui/LoadingSpinner'
 
 interface Comment {
   id: string
@@ -37,6 +38,8 @@ export function CommentSection({ postId }: CommentSectionProps) {
       // 로그인한 유저만 댓글 조회 가능
       if (data.user) {
         fetchComments()
+      } else {
+        setLoading(false) // 로그인하지 않은 경우 로딩 상태 해제
       }
     })
   }, [postId, supabase]) // eslint-disable-line react-hooks/exhaustive-deps
@@ -70,7 +73,12 @@ export function CommentSection({ postId }: CommentSectionProps) {
   }
 
   if (loading) {
-    return <div className="text-center py-8">댓글을 불러오는 중...</div>
+    return (
+      <section className="mt-6 sm:mt-8">
+        <h3 className="text-base sm:text-lg font-bold mb-4 sm:mb-6 text-black">토론</h3>
+        <LoadingSpinner size="sm" text="댓글을 불러오는 중..." />
+      </section>
+    )
   }
 
   // Organize comments into a tree structure
@@ -107,11 +115,7 @@ export function CommentSection({ postId }: CommentSectionProps) {
       <CommentForm postId={postId} onCommentAdded={handleCommentAdded} />
 
       <div className="mt-6 sm:mt-8">
-        {loading ? (
-          <div className="text-center py-6 sm:py-8 text-sm sm:text-base text-gray-600">
-            댓글을 불러오는 중...
-          </div>
-        ) : rootComments.length === 0 ? (
+        {rootComments.length === 0 ? (
           <div className="text-center py-6 sm:py-8 text-sm sm:text-base text-gray-600">
             아직 댓글이 없습니다. 첫 번째 댓글을 작성해보세요!
           </div>
@@ -119,6 +123,7 @@ export function CommentSection({ postId }: CommentSectionProps) {
           <CommentList
             comments={rootComments}
             repliesMap={repliesMap}
+            onCommentAdded={handleCommentAdded}
             onCommentUpdated={handleCommentUpdated}
             onCommentDeleted={handleCommentDeleted}
             currentUserId={user?.id}

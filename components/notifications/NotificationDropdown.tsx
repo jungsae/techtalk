@@ -177,7 +177,7 @@ export function NotificationDropdown({ userId }: { userId: string }) {
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-[calc(100vw-2rem)] sm:w-80 bg-white rounded-xl shadow-lg border border-[#e5e7eb] z-50 max-h-[500px] overflow-hidden flex flex-col">
+        <div className="fixed left-1/2 -translate-x-1/2 sm:absolute sm:left-auto sm:right-0 sm:translate-x-0 mt-2 w-[calc(100vw-2rem)] sm:w-80 bg-white rounded-xl shadow-lg border border-[#e5e7eb] z-50 max-h-[500px] overflow-hidden flex flex-col">
           <div className="flex items-center justify-between p-4 border-b border-[#e5e7eb]">
             <h3 className="text-lg font-bold text-black">알림</h3>
             {unreadCount > 0 && (

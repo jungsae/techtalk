@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { PostDetailModal } from './PostDetailModal'
+import { LoadingSpinner } from '../ui/LoadingSpinner'
 
 interface Post {
   id: string
@@ -13,6 +14,7 @@ interface Post {
   created_at: string
   updated_at: string
   view_count: number
+  comment_count?: number
   user_profiles: {
     id: string
     username: string | null
@@ -101,8 +103,16 @@ export function PostDetailModalWrapper({ postId: postIdProp }: PostDetailModalWr
     }
   }
 
-  if (!postId || loading) {
+  if (!postId) {
     return null
+  }
+
+  if (loading) {
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm">
+        <LoadingSpinner text="게시글을 불러오는 중..." />
+      </div>
+    )
   }
 
   if (!post) {

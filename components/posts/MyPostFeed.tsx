@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback, useRef } from 'react'
 import { PostCard } from './PostCard'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
+import { LoadingSpinner } from '../ui/LoadingSpinner'
 
 interface Post {
   id: string
@@ -114,6 +115,10 @@ export function MyPostFeed() {
     )
   }
 
+  if (posts.length === 0 && loading) {
+    return <LoadingSpinner text="게시글을 불러오는 중..." />
+  }
+
   if (posts.length === 0 && !loading) {
     return (
       <div className="text-center py-12 text-gray-600">
@@ -129,10 +134,8 @@ export function MyPostFeed() {
         <PostCard key={post.id} post={post} />
       ))}
       {hasMore && (
-        <div ref={loadMoreRef} className="py-8 flex justify-center">
-          {loading && (
-            <div className="text-gray-500 text-sm">로딩 중...</div>
-          )}
+        <div ref={loadMoreRef} className="py-8">
+          {loading && <LoadingSpinner size="sm" text="더 많은 게시글 불러오는 중..." />}
         </div>
       )}
     </>

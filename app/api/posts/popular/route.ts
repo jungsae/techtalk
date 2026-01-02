@@ -44,23 +44,28 @@ export async function GET(request: Request) {
       .map((id) => posts?.find((post) => post.id === id))
       .filter((post) => post !== undefined)
 
-    // Fetch user profiles and Redis view counts for each post
+    // Fetch user profiles, Redis view counts, and comment counts for each post
     // Note: We can't use user_profiles:author_id relationship because 
     // posts.author_id references auth.users, not user_profiles directly
     const postsWithViewCounts = await Promise.all(
       sortedPosts.map(async (post) => {
-        const [userProfileResult, redisViewCount] = await Promise.all([
+        const [userProfileResult, redisViewCount, commentCountResult] = await Promise.all([
           supabase
             .from('user_profiles')
             .select('id, username, avatar_url')
             .eq('id', post.author_id)
             .single(),
           redis.get<number>(`post:views:${post.id}`),
+          supabase
+            .from('comments')
+            .select('id', { count: 'exact', head: true })
+            .eq('post_id', post.id),
         ])
 
         return {
           ...post,
           view_count: Math.max(post?.view_count || 0, Number(redisViewCount || 0)),
+          comment_count: commentCountResult.count || 0,
           user_profiles: userProfileResult.data,
         }
       })
