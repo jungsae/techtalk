@@ -99,7 +99,7 @@ export default function SearchPage() {
           )}
         </main>
       </div>
-      <PostDetailModalWrapper postId={postId} />
+      <PostDetailModalWrapper postId={postId || undefined} />
     </div>
   )
 }
