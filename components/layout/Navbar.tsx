@@ -117,37 +117,20 @@ export function Navbar() {
                       )}
                     </div>
                   </button>
-                  {/* 데스크톱 호버 메뉴 */}
-                  <div className="hidden sm:block absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-                    <div className="py-2">
-                      <Link
-                        href="/posts/my"
-                        className="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
-                      >
-                        내 게시글
-                      </Link>
-                      <button
-                        onClick={handleLogout}
-                        className="w-full text-left px-4 py-2.5 text-sm text-red-600 hover:bg-gray-100 transition-colors"
-                      >
-                        로그아웃
-                      </button>
-                    </div>
-                  </div>
-                  {/* 모바일 터치 메뉴 */}
+                  {/* 사용자 메뉴 (데스크톱 & 모바일 공통) */}
                   {showUserMenu && (
-                    <div className="sm:hidden absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+                    <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
                       <div className="py-2">
                         <Link
                           href="/posts/my"
                           onClick={() => setShowUserMenu(false)}
-                          className="block px-4 py-3 text-sm text-gray-700 active:bg-gray-100 transition-colors touch-manipulation"
+                          className="block px-4 py-2.5 sm:py-3 text-sm text-gray-700 hover:bg-gray-100 active:bg-gray-100 transition-colors touch-manipulation"
                         >
                           내 게시글
                         </Link>
                         <button
                           onClick={handleLogout}
-                          className="w-full text-left px-4 py-3 text-sm text-red-600 active:bg-gray-100 transition-colors touch-manipulation"
+                          className="w-full text-left px-4 py-2.5 sm:py-3 text-sm text-red-600 hover:bg-gray-100 active:bg-gray-100 transition-colors touch-manipulation"
                         >
                           로그아웃
                         </button>

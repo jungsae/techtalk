@@ -32,11 +32,14 @@ export function CommentSection({ postId }: CommentSectionProps) {
   const supabase = createClient()
 
   useEffect(() => {
-    fetchComments()
     supabase.auth.getUser().then(({ data }) => {
       setUser(data.user)
+      // 로그인한 유저만 댓글 조회 가능
+      if (data.user) {
+        fetchComments()
+      }
     })
-  }, [postId])
+  }, [postId, supabase]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const fetchComments = async () => {
     try {
@@ -84,22 +87,31 @@ export function CommentSection({ postId }: CommentSectionProps) {
       repliesMap.get(parentId)!.push(comment)
     })
 
-  return (
-    <section className="mt-6 sm:mt-8">
-      <h3 className="text-base sm:text-lg font-bold mb-4 sm:mb-6 text-black">토론</h3>
-      {user ? (
-        <CommentForm postId={postId} onCommentAdded={handleCommentAdded} />
-      ) : (
-        <div className="mb-8 p-4 bg-[#f6f7f8] rounded-lg text-center border border-[#e5e7eb]">
+  // 로그인하지 않은 유저는 댓글 섹션 자체를 보여주지 않음
+  if (!user) {
+    return (
+      <section className="mt-6 sm:mt-8">
+        <div className="p-4 bg-[#f6f7f8] rounded-lg text-center border border-[#e5e7eb]">
           <Link href="/login" className="text-primary hover:text-blue-600 font-medium">
             로그인
           </Link>
-          하여 댓글을 작성하세요.
+          하여 댓글을 확인하고 작성할 수 있습니다.
         </div>
-      )}
+      </section>
+    )
+  }
+
+  return (
+    <section className="mt-6 sm:mt-8">
+      <h3 className="text-base sm:text-lg font-bold mb-4 sm:mb-6 text-black">토론</h3>
+      <CommentForm postId={postId} onCommentAdded={handleCommentAdded} />
 
       <div className="mt-6 sm:mt-8">
-        {rootComments.length === 0 ? (
+        {loading ? (
+          <div className="text-center py-6 sm:py-8 text-sm sm:text-base text-gray-600">
+            댓글을 불러오는 중...
+          </div>
+        ) : rootComments.length === 0 ? (
           <div className="text-center py-6 sm:py-8 text-sm sm:text-base text-gray-600">
             아직 댓글이 없습니다. 첫 번째 댓글을 작성해보세요!
           </div>

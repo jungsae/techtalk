@@ -165,7 +165,7 @@ export function PostDetailModal({ post }: PostDetailModalProps) {
                       </span>
                     </div>
                     <span className="text-xs sm:text-sm text-gray-600">
-                      {formatTimeAgo(post.created_at)} • 조회수 {post.view_count || 0}
+                      {formatTimeAgo(post.created_at)}
                     </span>
                   </div>
                 </div>
@@ -223,8 +223,17 @@ export function PostDetailModal({ post }: PostDetailModalProps) {
                 </div>
               )}
 
-              {/* 댓글 섹션 */}
-              <CommentSection postId={post.id} />
+              {/* 댓글 섹션 - 로그인한 유저만 볼 수 있음 */}
+              {user ? (
+                <CommentSection postId={post.id} />
+              ) : (
+                <div className="mt-6 sm:mt-8 p-4 bg-[#f6f7f8] rounded-lg text-center border border-[#e5e7eb]">
+                  <Link href="/login" className="text-primary hover:text-blue-600 font-medium">
+                    로그인
+                  </Link>
+                  하여 댓글을 확인할 수 있습니다.
+                </div>
+              )}
               
               <div className="h-10"></div>
             </div>

@@ -62,6 +62,15 @@ export default async function PostDetailPage({
   params: Promise<{ id: string }>
 }) {
   const { id } = await params
+  const supabase = await createClient()
+  
+  // 로그인 체크
+  const { data: { user } } = await supabase.auth.getUser()
+  
+  if (!user) {
+    redirect('/login')
+  }
+  
   const post = await getPost(id)
 
   if (!post) {
@@ -101,7 +110,7 @@ export default async function PostDetailPage({
                       {(post.user_profiles as any)?.username || '익명'}
                     </div>
                     <div className="text-xs text-gray-600">
-                      {formatTimeAgo(post.created_at)} • 조회수 {post.view_count || 0}
+                      {formatTimeAgo(post.created_at)}
                     </div>
                   </div>
                 </div>
