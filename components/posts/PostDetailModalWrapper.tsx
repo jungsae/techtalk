@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
+import { createClient } from '@/lib/supabase/client'
 import { PostDetailModal } from './PostDetailModal'
 
 interface Post {
@@ -26,23 +27,37 @@ interface PostDetailModalWrapperProps {
 export function PostDetailModalWrapper({ postId: postIdProp }: PostDetailModalWrapperProps) {
   const searchParams = useSearchParams()
   const router = useRouter()
+  const supabase = createClient()
   const [post, setPost] = useState<Post | null>(null)
   const [loading, setLoading] = useState(false)
+  const [user, setUser] = useState<any>(null)
 
   const postId = postIdProp || searchParams.get('post')
 
   useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => {
+      setUser(data.user)
+    })
+  }, [supabase])
+
+  useEffect(() => {
     if (postId) {
+      // 로그인하지 않은 유저는 로그인 페이지로 리다이렉트
+      if (!user) {
+        router.push('/login')
+        return
+      }
+      
       fetchPost(postId)
       
-      // 조회수 증가
+      // 조회수 증가 (로그인한 유저만)
       fetch(`/api/posts/${postId}/views`, {
         method: 'POST',
       }).catch(console.error)
     } else {
       setPost(null)
     }
-  }, [postId])
+  }, [postId, user, router])
 
   const fetchPost = async (id: string) => {
     try {

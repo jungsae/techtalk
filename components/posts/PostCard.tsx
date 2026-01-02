@@ -1,6 +1,8 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
+import { useEffect, useState } from 'react'
+import { createClient } from '@/lib/supabase/client'
 
 interface PostCardProps {
   post: {
@@ -31,6 +33,14 @@ function formatTimeAgo(date: string) {
 
 export function PostCard({ post, variant = 'default' }: PostCardProps) {
   const router = useRouter()
+  const supabase = createClient()
+  const [user, setUser] = useState<any>(null)
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => {
+      setUser(data.user)
+    })
+  }, [supabase])
 
   const handleClick = (e: React.MouseEvent<HTMLDivElement>) => {
     // 좋아요, 댓글 버튼을 클릭한 경우 링크로 이동하지 않음
@@ -39,6 +49,13 @@ export function PostCard({ post, variant = 'default' }: PostCardProps) {
       e.stopPropagation()
       return
     }
+    
+    // 로그인하지 않은 유저는 로그인 페이지로 리다이렉트
+    if (!user) {
+      router.push('/login')
+      return
+    }
+    
     // 모달로 게시글 상세 열기 (쿼리 파라미터 사용)
     router.push(`/?post=${post.id}`, { scroll: false })
   }
@@ -67,7 +84,6 @@ export function PostCard({ post, variant = 'default' }: PostCardProps) {
               <span className="text-gray-900 font-medium">{post.user_profiles?.username || '익명'}</span>
               <span>{formatTimeAgo(post.created_at)}</span>
             </div>
-            <span>조회수 {post.view_count || 0}</span>
           </div>
         </div>
       </article>
@@ -134,13 +150,7 @@ export function PostCard({ post, variant = 'default' }: PostCardProps) {
             <span className="material-symbols-outlined text-[20px] sm:text-[22px]">chat_bubble</span>
             <span className="text-xs sm:text-sm font-medium">0</span>
           </div>
-          <span className="text-xs text-gray-500 hidden sm:inline">
-            조회수 {post.view_count || 0}
-          </span>
         </div>
-        <span className="text-xs text-gray-500 sm:hidden">
-          조회수 {post.view_count || 0}
-        </span>
       </div>
     </article>
   )

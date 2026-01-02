@@ -10,6 +10,13 @@ export async function GET(
     const { id: postId } = await params
     const supabase = await createClient()
 
+    // 로그인 체크
+    const { data: { user } } = await supabase.auth.getUser()
+    
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
     const { data: comments, error } = await supabase
       .from('comments')
       .select(`
