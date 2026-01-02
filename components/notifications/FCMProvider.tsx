@@ -45,8 +45,8 @@ export function FCMProvider({ children }: { children: React.ReactNode }) {
             const newWorker = registration.installing
             if (newWorker) {
               newWorker.addEventListener('statechange', () => {
-                if (newWorker.state === 'activated' && newWorker.active) {
-                  newWorker.active.postMessage({
+                if (newWorker.state === 'activated' && registration.active) {
+                  registration.active.postMessage({
                     type: 'FIREBASE_CONFIG',
                     config: firebaseConfig,
                   })

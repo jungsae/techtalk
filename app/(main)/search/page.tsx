@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { PostCard } from '@/components/posts/PostCard'
 import { PostDetailModalWrapper } from '@/components/posts/PostDetailModalWrapper'
@@ -21,7 +21,7 @@ interface Post {
   } | null
 }
 
-export default function SearchPage() {
+function SearchContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
   const query = searchParams.get('q') || ''
@@ -60,7 +60,7 @@ export default function SearchPage() {
   }
 
   return (
-    <div className="bg-background-light text-black font-display min-h-screen flex flex-col pb-16 sm:pb-0">
+    <>
       <div className="flex flex-1 max-w-[1200px] w-full mx-auto px-3 sm:px-4 md:px-6 lg:px-10 py-4 sm:py-6 gap-4 sm:gap-6 lg:gap-8">
         <main className="flex flex-col flex-1 max-w-[640px] mx-auto w-full gap-6">
           {query && (
@@ -100,6 +100,22 @@ export default function SearchPage() {
         </main>
       </div>
       <PostDetailModalWrapper postId={postId || undefined} />
+    </>
+  )
+}
+
+export default function SearchPage() {
+  return (
+    <div className="bg-background-light text-black font-display min-h-screen flex flex-col pb-16 sm:pb-0">
+      <Suspense fallback={
+        <div className="flex flex-1 max-w-[1200px] w-full mx-auto px-3 sm:px-4 md:px-6 lg:px-10 py-4 sm:py-6">
+          <div className="text-center py-12 text-gray-500 w-full">
+            검색 중...
+          </div>
+        </div>
+      }>
+        <SearchContent />
+      </Suspense>
     </div>
   )
 }
